@@ -29,36 +29,6 @@ def convert_tab(pos):
     return row, line
 
 
-def main():
-    print('dep lancée 1')
-    p1 = 1
-    turn = 0
-    nick = ""
-    p2 = 2
-    gf = False
-    game = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-    while gf == False:
-        print(game)
-        if turn % 2 == 0:
-            nick = 'Joueur 1'
-            pchoice = hit_detect(pygame, p1, screen)
-            modify_game(game, pchoice, p1)
-            if win_checker(game, p1):
-                print(game)
-                return 'Joueur 1 a remporté la partie'
-        else:
-            nick = 'Joueur 2'
-            pchoice = pchoice = hit_detect(pygame, p2, screen)
-            modify_game(game, pchoice, p2)
-            if win_checker(game, p2):
-                print(game)
-                return 'Joueur 2 a remporté la partie'
-        turn = turn + 1
-        if turn == 9:
-            gf = True
-    return '[!] Partie terminée: Aucun gagnant'
-
-
 def player_choice(nick, game):
     col = '[' + nick + ']' + ' Indiquez la colonne: '
     rw = '\n[' + nick + ']' + ' Indiquez la ligne: '

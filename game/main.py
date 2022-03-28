@@ -8,6 +8,8 @@ winner=False
 circle = pygame.image.load("rond.png")
 cross = pygame.image.load("cross.png")
 
+poscrlc={(0,0):(144, 144), (0, 1):(440, 144),(0,2):(750,144) ,(1, 0):(144, 450), (1, 1):(440, 450), (1, 2):(750, 450), (2,0):(144, 750), (2,1):(440, 750), (2,2):(750, 750)}
+
 
 def check_player(aplyr, turn):
     p1 = 1
@@ -28,39 +30,6 @@ def convert_tab(pos):
     row = pos[1] // 300
     return row, line
 
-
-def player_choice(nick, game):
-    col = '[' + nick + ']' + ' Indiquez la colonne: '
-    rw = '\n[' + nick + ']' + ' Indiquez la ligne: '
-    colomn = -1
-    row = -1
-    while colomn > 3 or colomn < 0:
-        colomn = input(col)
-        if isinstance(colomn, int):
-            print('#oui')
-        else:
-            if colomn == '0' or colomn == '1' or colomn == '2' or colomn == '3':
-                colomn = int(colomn)
-            else:
-                print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n[!] Donnée incorrecte')
-                colomn = -1
-    while row > 3 or row < 0:
-        row = int(input(rw))
-        if isinstance(row, int):
-            variablecheck = 'oui'
-        else:
-            if row == '0' or row == '1' or row == '2' or row == '3':
-                row = int(row)
-            else:
-                print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n[!] Donnée incorrecte')
-                row = -1
-    if game[row - 1][colomn - 1] != 0:
-        print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n[!] Cette case a déjà été jouée !')
-        print(game)
-        return player_choice(nick, game)
-    return row, colomn
-
-
 def linear_check_win(game, player):
     idx = 0
     pelt = 0
@@ -71,12 +40,10 @@ def linear_check_win(game, player):
                     if line[i] == player:
                         pelt = pelt + 1
                 if pelt == 3:
-                    return True
-            idx = idx + 1
+                    return True, [(idx, 0), (idx, 1), (idx, 2)]
+        idx = idx + 1
         pelt = 0
-        idx = 0
-    return False
-
+    return False, (-float('inf'))
 
 def col_check_win(game, player):
     col = 0
@@ -84,9 +51,9 @@ def col_check_win(game, player):
     while col < 3:
         if game[line][col] == player:
             if game[line + 1][col] == player and game[line + 2][col] == player:
-                return True
+                return True, [(0,col),(1,col),(2,col)]
         col = col + 1
-    return False
+    return False, (-float('inf'))
 
 
 def diag_to_right_check_win(game, player):
@@ -94,8 +61,8 @@ def diag_to_right_check_win(game, player):
     line = 0
     if game[line][col] == player:
         if game[line + 1][col + 1] == player and game[line + 2][col + 2] == player:
-            return True
-    return False
+            return True, [(0,0),(1,1), (2,2)]
+    return False, (-float('inf'))
 
 
 def diag_to_left_check_win(game, player):
@@ -103,8 +70,8 @@ def diag_to_left_check_win(game, player):
     line = 2
     if game[line][col] == player:
         if game[line - 1][col + 1] == player and game[line - 2][col + 2] == player:
-            return True
-    return False
+            return True, [(2, 0), (1, 1), (0, 2)]
+    return False, (-float('inf'))
 
 
 def modify_game(game, pchoice, player):
@@ -126,15 +93,17 @@ def cheat(game, pchoice, player):
 
 
 def win_checker(game, player):
-    if linear_check_win(game, player) or col_check_win(game, player) or diag_to_right_check_win(game,
-                                                                                                player) or diag_to_left_check_win(
-            game, player):
-        return True
+    if linear_check_win(game, player)[0]==True:
+        return True, linear_check_win(game, player)[1]
+    elif col_check_win(game, player)[0]==True:
+        return True, col_check_win(game, player)[1]
+    elif diag_to_right_check_win(game, player)[0]==True:
+        return True, diag_to_right_check_win(game, player)[1]
+    elif diag_to_left_check_win(game, player)[0]==True:
+        return True, diag_to_left_check_win(game, player)[1]
     else:
-        return False
+        return False, -float('inf')
 
-
-dic = {(1, 1): (335, 349)}
 
 
 def graphic_change(game, indx, player, circle, cross):
@@ -145,13 +114,12 @@ def graphic_change(game, indx, player, circle, cross):
     else:
         screen.blit(circle, dic[indx])
 
-def countdown(num_of_secs):
-    while num_of_secs:
-        m, s = divmod(num_of_secs, 60)
-        min_sec_format = '{:02d}:{:02d}'.format(m, s)
-        print(min_sec_format, end='/r')
-        time.sleep(1)
-        num_of_secs -= 1
+def see_win(poscrlc, win_locat):
+   # print(win_locat)
+    for cord in win_locat:
+      #  print('CERCLE')
+       # print(cord, win_locat)
+        pygame.draw.circle(screen, (0,255,0), poscrlc[cord], 125, 8)
 
 pygame.init()
 screen = pygame.display.set_mode([900, 900])
@@ -170,12 +138,17 @@ while running:
     pygame.draw.line(screen, (255, 255, 255), (0, 300), (900, 300), 10)
     pygame.display.flip()
     for i in pygame.event.get():
-        if winner==True:
-            running=False
-            time.sleep(5)
         if i.type == pygame.QUIT:
             running = False
             pygame.quit()
+        if winner==True:
+            time.sleep(2)
+            screen.fill(blue)
+            aplyr = 1
+            turn = 0
+            game = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+            state=True
+            winner=False
         if i.type == pygame.MOUSEBUTTONDOWN:
             if pygame.mouse.get_pressed() == (1, 0, 0):
                 if state==True:
@@ -189,9 +162,13 @@ while running:
                     game = modify_game(game, indx, player)
                     graphic_change(game, indx, player, circle, cross)
                     state=True
-                    if win_checker(game, player):
+                    if win_checker(game, player)[0]==True:
+                        win_locat=win_checker(game, player)[1]
+                        print(win_locat)
                         print('Gagnant')
+                        see_win(poscrlc, win_locat)
                         winner=True
+                if turn==9 and winner==False:
+                    print('Pas de gagnant')
+                    winner=True
                 print(game)
-                print(pos)
-                print(indx)
